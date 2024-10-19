@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135244284170",
+    "project_id": "ichibanauto-flutter",
+    "storage_bucket": "ichibanauto-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135244284170:android:4ef75342785175fff8faf3",
+        "android_client_info": {
+          "package_name": "com.mdjoynulabedinshokal.ichibanauto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgCEL6K0uThlL3BmJ2wdfVYvL1r03ge0g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
