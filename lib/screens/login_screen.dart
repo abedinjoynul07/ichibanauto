@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ichibanauto/screens/registration_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
@@ -34,7 +33,7 @@ class AuthScreenState extends State<AuthScreen> {
               // App Title
               const Center(
                 child: Text(
-                  'Car Workshop',
+                  'Ichiban Auto',
                   style: TextStyle(
                     fontSize: 28.0,
                     fontWeight: FontWeight.bold,
@@ -126,48 +125,48 @@ class AuthScreenState extends State<AuthScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Login'),
+                      child: const Text('Login', style: TextStyle(color: Colors.black),),
                     );
                   },
                 ),
               ),
               const SizedBox(height: 20.0),
 
-              // Google Sign-In Button
-              ElevatedButton.icon(
-                onPressed: () {
-                  BlocProvider.of<AuthBloc>(context).add(GoogleSignInEvent());
-                },
-                icon: const Icon(FontAwesomeIcons.google, color: Colors.red),
-                label: const Text('Sign in with Google'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: Colors.white,
-                  padding: const EdgeInsets.all(16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  side: const BorderSide(color: Colors.black12),
-                ),
-              ),
-              const SizedBox(height: 10.0),
-
-              // Apple Sign-In Button
-              ElevatedButton.icon(
-                onPressed: () {
-                  BlocProvider.of<AuthBloc>(context).add(AppleSignInEvent());
-                },
-                icon: const Icon(Icons.apple, color: Colors.white),
-                label: const Text('Sign in with Apple'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.all(16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20.0),
+              // // Google Sign-In Button
+              // ElevatedButton.icon(
+              //   onPressed: () {
+              //     BlocProvider.of<AuthBloc>(context).add(GoogleSignInEvent());
+              //   },
+              //   icon: const Icon(FontAwesomeIcons.google, color: Colors.red),
+              //   label: const Text('Sign in with Google'),
+              //   style: ElevatedButton.styleFrom(
+              //     foregroundColor: Colors.black, backgroundColor: Colors.white,
+              //     padding: const EdgeInsets.all(16.0),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     side: const BorderSide(color: Colors.black12),
+              //   ),
+              // ),
+              // const SizedBox(height: 10.0),
+              //
+              // // Apple Sign-In Button
+              // ElevatedButton.icon(
+              //   onPressed: () {
+              //     BlocProvider.of<AuthBloc>(context).add(AppleSignInEvent());
+              //   },
+              //   icon: const Icon(Icons.apple, color: Colors.white),
+              //   label: const Text('Sign in with Apple'),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.black,
+              //     padding: const EdgeInsets.all(16.0),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //   ),
+              // ),
+              //
+              // const SizedBox(height: 20.0),
 
               // Registration Button
               TextButton(
