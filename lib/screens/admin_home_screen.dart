@@ -4,14 +4,14 @@ import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import 'login_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class AdminHomeScreen extends StatelessWidget {
+  const AdminHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Admin Home'),
       ),
       // Drawer implementation
       drawer: Drawer(
@@ -19,12 +19,12 @@ class HomeScreen extends StatelessWidget {
           children: [
             // Drawer Header
             const UserAccountsDrawerHeader(
-              accountName: Text('User Name'),
-              accountEmail: Text('user@example.com'),
+              accountName: Text('Mohammad Joynul Abedin'),
+              accountEmail: Text('shokal@gmail.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
-                  'U',
+                  'M',
                   style: TextStyle(fontSize: 40.0, color: Colors.blueAccent),
                 ),
               ),

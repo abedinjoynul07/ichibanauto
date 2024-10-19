@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,21 +7,35 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   AuthBloc() : super(AuthInitial()) {
-    on<AppStarted>((event, emit) async {
+    Future<void> fetchUserRoleAndRedirect(User user, Emitter<AuthState> emit, {bool showToast = false}) async {
       try {
-        User? user = _auth.currentUser;
-        if (user != null) {
-          emit(Authenticated(user.uid));
+        final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          final String role = userDoc['role'];
+          if (role == 'admin') {
+            emit(AdminAuthenticated(user.uid));
+          } else if (role == 'mechanic') {
+            emit(MechanicAuthenticated(user.uid));
+          }
         } else {
-          emit(Unauthenticated());
+          emit(const AuthError('User role not found.'));
         }
-      } catch (_) {
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
+    }
+
+    on<AppStarted>((event, emit) async {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await fetchUserRoleAndRedirect(user, emit);
+      } else {
         emit(Unauthenticated());
       }
     });
@@ -28,11 +43,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoggedIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        UserCredential result = await _auth.signInWithEmailAndPassword(
+        final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: event.email,
           password: event.password,
         );
-        emit(Authenticated(result.user!.uid));
+        await fetchUserRoleAndRedirect(userCredential.user!, emit, showToast: true); // Show toast after login
       } catch (e) {
         emit(AuthError(e.toString()));
       }
@@ -45,7 +60,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-        emit(Authenticated(result.user!.uid));
+        await _firestore.collection('users').doc(result.user!.uid).set({
+          'email': event.email,
+          'role': event.role,
+        });
+
+        await fetchUserRoleAndRedirect(result.user!, emit, showToast: true);
       } catch (e) {
         emit(AuthError(e.toString()));
       }
@@ -88,8 +108,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           accessToken: appleCredential.authorizationCode,
         );
 
-        final UserCredential result = await _auth.signInWithCredential(credential);
-        emit(Authenticated(result.user!.uid));
+        final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        emit(Authenticated(userCredential.user!.uid));
       } catch (e) {
         emit(AuthError(e.toString()));
       }

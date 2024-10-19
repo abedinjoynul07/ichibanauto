@@ -8,13 +8,16 @@ class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  RegistrationScreenState createState() => RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+  String _selectedRole = 'mechanic'; // Default role
+  final List<String> _roles = ['mechanic', 'admin']; // Available roles
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 40.0),
 
-              // Registration form
+              // Email Input Field
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -56,6 +59,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
+
+              // Password Input Field
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -71,12 +76,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
               const SizedBox(height: 16.0),
+
+              // Confirm Password Input Field
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
                   labelStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+
+              // Role Selection Dropdown
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                items: _roles.map((role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role.toUpperCase()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedRole = value!;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Role',
                   filled: true,
                   fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
@@ -93,6 +126,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(state.error)));
+                  } else if (state is Authenticated) {
+                    Navigator.pop(context);
                   }
                 },
                 child: BlocBuilder<AuthBloc, AuthState>(
@@ -107,8 +142,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         final confirmPassword = _confirmPasswordController.text;
 
                         if (password == confirmPassword) {
+                          // Dispatch registration event with email, password, and selected role
                           BlocProvider.of<AuthBloc>(context).add(
-                            RegisterWithEmail(email, password),
+                            RegisterWithEmail(email, password, _selectedRole), // Pass the selected role
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +153,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(16.0), backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.all(16.0),
+                        backgroundColor: Colors.blueAccent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

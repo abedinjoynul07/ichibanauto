@@ -6,16 +6,17 @@ import 'package:ichibanauto/screens/registration_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../blocs/auth_state.dart';
-import 'home_screen.dart';
+import 'admin_home_screen.dart';
+import 'mechanic_home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  _AuthScreenState createState() => _AuthScreenState();
+  AuthScreenState createState() => AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -84,16 +85,25 @@ class _AuthScreenState extends State<AuthScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.error)),
                     );
-                  } else if (state is Authenticated) {
+                  } else if (state is AdminAuthenticated) {
                     Fluttertoast.showToast(
-                      msg: "Login Successful",
+                      msg: "Login Successful (Admin)",
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                     );
-                    // Navigate to the HomeScreen
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+                    );
+                  } else if (state is MechanicAuthenticated) {
+                    Fluttertoast.showToast(
+                      msg: "Login Successful (Mechanic)",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
                     );
                   }
                 },
