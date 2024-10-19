@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Booking {
+  final String? id; // Optional document ID for updating
   final String make;
   final String model;
   final String year;
@@ -14,6 +15,7 @@ class Booking {
   final String mechanicId;
 
   Booking({
+    this.id, // Optional ID for editing
     required this.make,
     required this.model,
     required this.year,
@@ -27,8 +29,10 @@ class Booking {
     required this.mechanicId,
   });
 
-  factory Booking.fromMap(Map<String, dynamic> data) {
+  // Factory method to create Booking from Firebase document
+  factory Booking.fromMap(Map<String, dynamic> data, {String? id}) {
     return Booking(
+      id: id,
       make: data['make'] ?? '',
       model: data['model'] ?? '',
       year: data['year'] ?? '',
@@ -43,6 +47,7 @@ class Booking {
     );
   }
 
+  // Convert Booking object to map for Firebase
   Map<String, dynamic> toMap() {
     return {
       'make': make,

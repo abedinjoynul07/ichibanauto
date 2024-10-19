@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'booking_details_screen.dart';
 import 'create_booking_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
@@ -89,6 +90,7 @@ class AdminHomeScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = bookings[index].data() as Map<String, dynamic>;
               final booking = Booking.fromMap(data);
+              final bookingId = bookings[index].id;
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -112,33 +114,53 @@ class AdminHomeScreen extends StatelessWidget {
                   final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
                   final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
 
-                  return ListTile(
-                    title: Text('${booking.bookingTitle} - ${booking.customerName}'),
-                    subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
-                    trailing: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text("Assigned Mechanic", style: TextStyle(fontWeight: FontWeight.bold),),
-                        Text(mechanicEmail),
-                      ],
-                    ),
-                    isThreeLine: true,
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(
-                          Icons.car_repair,
-                          color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
+                  return GestureDetector(
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingDetailScreen(booking: booking),
                         ),
-                        GestureDetector(
-                          onTap: (){},
-                          child: Icon(
-                            Icons.edit,
-                            size: 20,
+                      );
+                    },
+                    child: ListTile(
+                      title: Text('${booking.bookingTitle} - ${booking.customerName}'),
+                      subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text(
+                            "Assigned Mechanic",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(mechanicEmail),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      leading: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(
+                            Icons.car_repair,
                             color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
                           ),
-                        ),
-                      ],
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CreateBookingScreen(booking: booking, bookingId: bookingId,),
+                                ),
+                              );
+                            },
+                            child: Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
