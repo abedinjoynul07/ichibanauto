@@ -15,7 +15,7 @@ class AdminHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+    final User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +23,7 @@ class AdminHomeScreen extends StatelessWidget {
       ),
       drawer: Drawer(
         child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(), // Listen to user document
+          stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -37,7 +37,6 @@ class AdminHomeScreen extends StatelessWidget {
               return const Center(child: Text('User details not found.'));
             }
 
-            // Extract user details
             final userData = snapshot.data!.data() as Map<String, dynamic>;
             final String userEmail = userData['email'] ?? 'Unknown Email';
             final String userRole = userData['role'] ?? 'Unknown Role';
@@ -50,7 +49,7 @@ class AdminHomeScreen extends StatelessWidget {
                   currentAccountPicture: CircleAvatar(
                     backgroundColor: Colors.white,
                     child: Text(
-                      userRole.isNotEmpty ? userRole.substring(0, 1).toUpperCase() : 'M', // Use 'M' as fallback if userRole is empty
+                      userRole.isNotEmpty ? userRole.substring(0, 1).toUpperCase() : 'M',
                       style: const TextStyle(fontSize: 40.0, color: Colors.blueAccent),
                     ),
                   ),
@@ -200,7 +199,6 @@ class AdminHomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to check if the booking is ending soon (within 1 hour)
   bool _isEndingSoon(DateTime endDate) {
     final DateTime now = DateTime.now();
     return endDate.isBefore(now.add(const Duration(hours: 1))) && endDate.isAfter(now);

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'booking_details_screen.dart';
-import 'create_booking_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../models/booking.dart';
@@ -15,14 +14,14 @@ class MechanicHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+    final User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mechanic Home'),
       ),
       drawer: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(), // Fetch user document
+        stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -35,12 +34,10 @@ class MechanicHomeScreen extends StatelessWidget {
           if (!snapshot.hasData || !snapshot.data!.exists) {
             return const Center(child: Text('User details not found.'));
           }
-
-          // Extract user details
           final userData = snapshot.data!.data() as Map<String, dynamic>;
           final String userEmail = userData['email'] ?? 'Unknown Email';
           final String userRole = userData['role'] ?? 'Unknown Role';
-          final mechanicId = snapshot.data!.id; // Mechanic ID
+          final mechanicId = snapshot.data!.id;
 
           debugPrint("Mechanic Id -> $mechanicId");
 
@@ -55,7 +52,7 @@ class MechanicHomeScreen extends StatelessWidget {
                     child: Text(
                       userRole.isNotEmpty
                           ? userRole.substring(0, 1).toUpperCase()
-                          : 'M', // Default to 'M' if empty
+                          : 'M',
                       style: const TextStyle(fontSize: 40.0, color: Colors.blueAccent),
                     ),
                   ),
@@ -87,7 +84,7 @@ class MechanicHomeScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('bookings')
-            .where('mechanic', isEqualTo: user?.uid) // Fetch bookings for this mechanic
+            .where('mechanic', isEqualTo: user.uid)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -109,7 +106,6 @@ class MechanicHomeScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = bookings[index].data() as Map<String, dynamic>;
               final booking = Booking.fromMap(data);
-              final bookingId = bookings[index].id;
 
               final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
               final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
@@ -139,7 +135,6 @@ class MechanicHomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to check if the booking is ending soon (within 1 hour)
   bool _isEndingSoon(DateTime endDate) {
     final DateTime now = DateTime.now();
     return endDate.isBefore(now.add(const Duration(hours: 1))) && endDate.isAfter(now);
