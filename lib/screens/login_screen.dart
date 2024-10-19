@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ichibanauto/screens/registration_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../blocs/auth_state.dart';
+import 'home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -76,9 +78,22 @@ class _AuthScreenState extends State<AuthScreen> {
               // Login Button
               BlocListener<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state is AuthError) {
+                  if (state is AuthLoading) {
+                    // Show a loading indicator or something similar if needed
+                  } else if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.error)),
+                    );
+                  } else if (state is Authenticated) {
+                    Fluttertoast.showToast(
+                      msg: "Login Successful",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                    // Navigate to the HomeScreen
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
                     );
                   }
                 },
@@ -101,7 +116,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Login', style: TextStyle(color: Colors.black),),
+                      child: const Text('Login'),
                     );
                   },
                 ),
@@ -113,10 +128,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 onPressed: () {
                   BlocProvider.of<AuthBloc>(context).add(GoogleSignInEvent());
                 },
-                icon: const Icon(FontAwesomeIcons.google, color: Colors.white),
+                icon: const Icon(FontAwesomeIcons.google, color: Colors.red),
                 label: const Text('Sign in with Google'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: Colors.red,
+                  foregroundColor: Colors.black, backgroundColor: Colors.white,
                   padding: const EdgeInsets.all(16.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -132,7 +147,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   BlocProvider.of<AuthBloc>(context).add(AppleSignInEvent());
                 },
                 icon: const Icon(Icons.apple, color: Colors.white),
-                label: const Text('Sign in with Apple', style: TextStyle(color: Colors.white),),
+                label: const Text('Sign in with Apple'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   padding: const EdgeInsets.all(16.0),

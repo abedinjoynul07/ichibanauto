@@ -43,6 +43,7 @@ dependencies:
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^6.1.3
   font_awesome_flutter: ^10.7.0
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_test:

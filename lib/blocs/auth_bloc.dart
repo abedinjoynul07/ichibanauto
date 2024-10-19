@@ -51,8 +51,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
-
-
     on<GoogleSignInEvent>((event, emit) async {
       emit(AuthLoading());
       try {
