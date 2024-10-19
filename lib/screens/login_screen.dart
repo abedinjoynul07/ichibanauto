@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ichibanauto/screens/registration_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../blocs/auth_state.dart';
-import 'admin_home_screen.dart';
-import 'mechanic_home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -30,7 +27,6 @@ class AuthScreenState extends State<AuthScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // App Title
               const Center(
                 child: Text(
                   'Ichiban Auto',
@@ -43,7 +39,6 @@ class AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 40.0),
 
-              // Email & Password Input Fields
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -75,100 +70,36 @@ class AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 20.0),
 
-              // Login Button
-              BlocListener<AuthBloc, AuthState>(
-                listener: (context, state) {
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
                   if (state is AuthLoading) {
-                    // Show a loading indicator or something similar if needed
-                  } else if (state is AuthError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.error)),
-                    );
-                  } else if (state is AdminAuthenticated) {
-                    Fluttertoast.showToast(
-                      msg: "Login Successful (Admin)",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                    );
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
-                    );
-                  } else if (state is MechanicAuthenticated) {
-                    Fluttertoast.showToast(
-                      msg: "Login Successful (Mechanic)",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                    );
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
-                },
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is AuthLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return ElevatedButton(
-                      onPressed: () {
-                        final email = _emailController.text;
-                        final password = _passwordController.text;
-                        BlocProvider.of<AuthBloc>(context).add(
-                          LoggedIn(email, password),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(16.0), backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+
+                  return ElevatedButton(
+                    onPressed: () {
+                      final email = _emailController.text;
+                      final password = _passwordController.text;
+                      BlocProvider.of<AuthBloc>(context).add(
+                        LoggedIn(email, password),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(16.0),
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text('Login', style: TextStyle(color: Colors.black),),
-                    );
-                  },
-                ),
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20.0),
 
-              // // Google Sign-In Button
-              // ElevatedButton.icon(
-              //   onPressed: () {
-              //     BlocProvider.of<AuthBloc>(context).add(GoogleSignInEvent());
-              //   },
-              //   icon: const Icon(FontAwesomeIcons.google, color: Colors.red),
-              //   label: const Text('Sign in with Google'),
-              //   style: ElevatedButton.styleFrom(
-              //     foregroundColor: Colors.black, backgroundColor: Colors.white,
-              //     padding: const EdgeInsets.all(16.0),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     side: const BorderSide(color: Colors.black12),
-              //   ),
-              // ),
-              // const SizedBox(height: 10.0),
-              //
-              // // Apple Sign-In Button
-              // ElevatedButton.icon(
-              //   onPressed: () {
-              //     BlocProvider.of<AuthBloc>(context).add(AppleSignInEvent());
-              //   },
-              //   icon: const Icon(Icons.apple, color: Colors.white),
-              //   label: const Text('Sign in with Apple'),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.black,
-              //     padding: const EdgeInsets.all(16.0),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //   ),
-              // ),
-              //
-              // const SizedBox(height: 20.0),
-
-              // Registration Button
               TextButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -192,3 +123,4 @@ class AuthScreenState extends State<AuthScreen> {
     );
   }
 }
+

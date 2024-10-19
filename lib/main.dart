@@ -38,18 +38,35 @@ class AuthHandler extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is AuthLoading) {
-          return const Center(child: CircularProgressIndicator()); // Show loading spinner while fetching user info
-        } else if (state is AdminAuthenticated) {
-          return const AdminHomeScreen(); // Navigate to Admin Home Screen
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AdminAuthenticated) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+          );
         } else if (state is MechanicAuthenticated) {
-          return const MechanicHomeScreen(); // Navigate to Mechanic Home Screen
-        } else {
-          return const AuthScreen(); // Show login screen if not authenticated
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
+          );
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error)),
+          );
         }
       },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is AuthLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is Unauthenticated) {
+            return const AuthScreen(); // Show the login screen if unauthenticated
+          } else {
+            return const Center(child: CircularProgressIndicator()); // Default state
+          }
+        },
+      ),
     );
   }
 }
