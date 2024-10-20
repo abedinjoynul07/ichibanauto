@@ -16,8 +16,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  String _selectedRole = 'mechanic'; // Default role
-  final List<String> _roles = ['mechanic', 'admin']; // Available roles
+  String _selectedRole = 'mechanic';
+  final List<String> _roles = ['mechanic', 'admin'];
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Title
               const Center(
                 child: Text(
                   'Create Account',
@@ -43,7 +42,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 40.0),
 
-              // Email Input Field
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -60,7 +58,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Password Input Field
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -77,7 +74,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Confirm Password Input Field
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
@@ -94,7 +90,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Role Selection Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedRole,
                 items: _roles.map((role) {
@@ -120,7 +115,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 20.0),
 
-              // Register Button
               BlocListener<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state is AuthError) {
@@ -142,9 +136,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         final confirmPassword = _confirmPasswordController.text;
 
                         if (password == confirmPassword) {
-                          // Dispatch registration event with email, password, and selected role
                           BlocProvider.of<AuthBloc>(context).add(
-                            RegisterWithEmail(email, password, _selectedRole), // Pass the selected role
+                            RegisterWithEmail(email, password, _selectedRole),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -166,10 +159,9 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 20.0),
 
-              // Login Button
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);  // Go back to the login page
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   'Already have an account? Login',

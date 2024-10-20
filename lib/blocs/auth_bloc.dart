@@ -47,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-        await fetchUserRoleAndRedirect(userCredential.user!, emit, showToast: true); // Show toast after login
+        await fetchUserRoleAndRedirect(userCredential.user!, emit, showToast: true);
       } catch (e) {
         emit(AuthError(e.toString()));
       }

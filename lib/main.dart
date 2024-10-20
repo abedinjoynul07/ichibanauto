@@ -21,13 +21,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc()..add(AppStarted()), // Check authentication on app start
+      create: (context) => AuthBloc()..add(AppStarted()),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Car Workshop',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const AuthHandler(), // Handle auth state on app start
+        home: const AuthHandler(),
       ),
     );
   }
@@ -61,9 +62,9 @@ class AuthHandler extends StatelessWidget {
           if (state is AuthLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is Unauthenticated) {
-            return const AuthScreen(); // Show the login screen if unauthenticated
+            return const AuthScreen();
           } else {
-            return const Center(child: CircularProgressIndicator()); // Default state
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),

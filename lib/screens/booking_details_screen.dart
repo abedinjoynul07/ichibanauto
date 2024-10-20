@@ -10,54 +10,61 @@ class BookingDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
-    final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
+    final String formattedStartDate = DateFormat.yMMMd().format(booking.startDate);
+    final String formattedStartTime = DateFormat.jm().format(booking.startDate);
+    final String formattedEndDate = DateFormat.yMMMd().format(booking.endDate);
+    final String formattedEndTime = DateFormat.jm().format(booking.endDate);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Booking Details'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              booking.bookingTitle,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            const Text(
+              'CAR SERVICE DETAILS',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Car Details',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            _buildSectionTitle('CAR DETAILS'),
             const SizedBox(height: 8),
-            Text('Make: ${booking.make}'),
-            Text('Model: ${booking.model}'),
-            Text('Year: ${booking.year}'),
-            Text('Registration Plate: ${booking.registrationPlate}'),
+            _buildDetailRow('Make', booking.make),
+            _buildDetailRow('Model', booking.model),
+            _buildDetailRow('Year', booking.year),
+            _buildDetailRow('Registration Plate', booking.registrationPlate),
             const SizedBox(height: 20),
-            const Text(
-              'Customer Details',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            _buildSectionTitle('OWNER DETAILS'),
             const SizedBox(height: 8),
-            Text('Name: ${booking.customerName}'),
-            Text('Phone: ${booking.customerPhone}'),
-            Text('Email: ${booking.customerEmail}'),
+            _buildDetailRow('Name', booking.customerName),
+            _buildDetailRow('Phone', booking.customerPhone),
+            _buildDetailRow('Email', booking.customerEmail),
             const SizedBox(height: 20),
-            const Text(
-              'Booking Schedule',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            _buildSectionTitle('CAR SERVICE STARTED'),
             const SizedBox(height: 8),
-            Text('Start: $formattedStartDate'),
-            Text('End: $formattedEndDate'),
-            const SizedBox(height: 20),
-            const Text(
-              'Assigned Mechanic',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildDetailCard('Date', formattedStartDate),
+                const SizedBox(width: 10,),
+                _buildDetailCard('Time', formattedStartTime),
+              ],
             ),
+            const SizedBox(height: 20),
+            _buildSectionTitle('CAR SERVICE DEADLINE'),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildDetailCard('Date', formattedEndDate),
+                const SizedBox(width: 10,),
+                _buildDetailCard('Time', formattedEndTime),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildSectionTitle('WHO IS WORKING'),
             const SizedBox(height: 8),
             FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance
@@ -71,17 +78,62 @@ class BookingDetailScreen extends StatelessWidget {
                 if (mechanicSnapshot.hasError || !mechanicSnapshot.hasData) {
                   return const Text('Error loading mechanic details.');
                 }
-
                 final mechanicData = mechanicSnapshot.data!.data() as Map<String, dynamic>;
                 final String mechanicEmail = mechanicData['email'] ?? 'Unknown Email';
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Email: $mechanicEmail'),
-                  ],
+                return Text(
+                  'Email: $mechanicEmail',
+                  style: const TextStyle(fontSize: 16),
                 );
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailCard(String label, String value) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),

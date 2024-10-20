@@ -38,7 +38,6 @@ class AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 40.0),
-
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -69,13 +68,11 @@ class AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 20.0),
-
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   if (state is AuthLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   return ElevatedButton(
                     onPressed: () {
                       final email = _emailController.text;
@@ -99,7 +96,6 @@ class AuthScreenState extends State<AuthScreen> {
                 },
               ),
               const SizedBox(height: 20.0),
-
               TextButton(
                 onPressed: () {
                   Navigator.of(context).push(

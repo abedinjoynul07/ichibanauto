@@ -121,7 +121,7 @@ class CreateBookingScreenState extends State<CreateBookingScreen> {
 
       _formKey.currentState!.reset();
       clearFields();
-      Navigator.pop(context);  // Close the form after submitting
+      Navigator.pop(context);
     }
   }
 

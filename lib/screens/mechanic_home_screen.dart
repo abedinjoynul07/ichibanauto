@@ -4,13 +4,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'booking_details_screen.dart';
+import 'calander_view_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../models/booking.dart';
 import 'login_screen.dart';
 
-class MechanicHomeScreen extends StatelessWidget {
+class MechanicHomeScreen extends StatefulWidget {
   const MechanicHomeScreen({super.key});
+
+  @override
+  MechanicHomeScreenState createState() => MechanicHomeScreenState();
+}
+
+class MechanicHomeScreenState extends State<MechanicHomeScreen> {
+  bool _isCalendarView = true;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +27,16 @@ class MechanicHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mechanic Home'),
+        actions: [
+          IconButton(
+            icon: Icon(_isCalendarView ? Icons.list : Icons.calendar_today),
+            onPressed: () {
+              setState(() {
+                _isCalendarView = !_isCalendarView;
+              });
+            },
+          ),
+        ],
       ),
       drawer: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
@@ -81,7 +99,9 @@ class MechanicHomeScreen extends StatelessWidget {
           );
         },
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: _isCalendarView
+          ? const CalendarViewScreen(userType: UserType.mechanic)
+          : StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('bookings')
             .where('mechanic', isEqualTo: user.uid)

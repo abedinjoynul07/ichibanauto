@@ -1,17 +1,27 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
-import 'booking_details_screen.dart';
-import 'create_booking_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ichibanauto/widgets/admin_booking_item.dart';
+
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../models/booking.dart';
+import 'booking_details_screen.dart';
+import 'calander_view_screen.dart';
+import 'create_booking_screen.dart';
 import 'login_screen.dart';
 
-class AdminHomeScreen extends StatelessWidget {
+class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
+
+  @override
+  AdminHomeScreenState createState() => AdminHomeScreenState();
+}
+
+class AdminHomeScreenState extends State<AdminHomeScreen> {
+  bool _showCalendarView = true;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +30,16 @@ class AdminHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Home'),
+        actions: [
+          IconButton(
+            icon: Icon(_showCalendarView ? Icons.list : Icons.calendar_today),
+            onPressed: () {
+              setState(() {
+                _showCalendarView = !_showCalendarView;
+              });
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: StreamBuilder<DocumentSnapshot>(
@@ -89,118 +109,82 @@ class AdminHomeScreen extends StatelessWidget {
           },
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('bookings')
-            .orderBy('endDate', descending: false)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching bookings.'));
-          }
-
-          final bookings = snapshot.data?.docs ?? [];
-
-          if (bookings.isEmpty) {
-            return const Center(child: Text('No bookings available.'));
-          }
-
-          return ListView.builder(
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final data = bookings[index].data() as Map<String, dynamic>;
-              final booking = Booking.fromMap(data);
-              final bookingId = bookings[index].id;
-
-              return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(booking.mechanicId)
-                    .get(),
-                builder: (context, mechanicSnapshot) {
-                  if (mechanicSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (mechanicSnapshot.hasError || !mechanicSnapshot.hasData) {
-                    return const ListTile(
-                      title: Text('Error loading mechanic details'),
-                    );
-                  }
-
-                  final mechanicData = mechanicSnapshot.data!.data() as Map<String, dynamic>;
-                  final String mechanicEmail = mechanicData['email'] ?? 'Unknown Email';
-
-                  final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
-                  final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
-
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookingDetailScreen(booking: booking),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      title: Text('${booking.bookingTitle} - ${booking.customerName}'),
-                      subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            "Assigned Mechanic",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(mechanicEmail),
-                        ],
-                      ),
-                      isThreeLine: true,
-                      leading: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Icon(
-                            Icons.car_repair,
-                            color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CreateBookingScreen(
-                                    booking: booking,
-                                    bookingId: bookingId,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
+      body: _showCalendarView ? _buildCalendarView() : _buildListView(context),
     );
   }
 
-  bool _isEndingSoon(DateTime endDate) {
-    final DateTime now = DateTime.now();
-    return endDate.isBefore(now.add(const Duration(hours: 1))) && endDate.isAfter(now);
+  Widget _buildCalendarView() {
+    return const CalendarViewScreen(userType: UserType.admin);
+  }
+
+  Widget _buildListView(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('bookings')
+          .orderBy('endDate', descending: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error fetching bookings.'));
+        }
+
+        final List<Booking> bookings = snapshot.data?.docs
+            .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>, id: doc.id))
+            .toList() ?? [];
+
+        if (bookings.isEmpty) {
+          return const Center(child: Text('No bookings available.'));
+        }
+
+        return AdminBookingList.adminBookingList(
+          context: context,
+          bookings: bookings,
+          onTap: (booking) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingDetailScreen(booking: booking),
+              ),
+            );
+          },
+          onEdit: (bookingId) {
+            final booking = bookings.firstWhere((b) => b.id == bookingId);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateBookingScreen(
+                  booking: booking,
+                  bookingId: bookingId,
+                ),
+              ),
+            );
+          },
+          onDelete: (bookingId) {
+            _deleteBooking(bookingId);
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteBooking(String bookingId) async {
+    try {
+      await FirebaseFirestore.instance.collection('bookings').doc(bookingId).delete();
+      Fluttertoast.showToast(
+        msg: "Booking deleted successfully!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error deleting booking: $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
   }
 }
