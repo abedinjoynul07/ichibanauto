@@ -41,25 +41,26 @@ class AuthHandler extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AdminAuthenticated) {
-          debugPrint("Navigating to AdminHomeScreen");
           Future.delayed(Duration.zero, () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
             );
           });
+          context.read<AuthBloc>().add(AppStarted());
         } else if (state is MechanicAuthenticated) {
-          debugPrint("Navigating to MechanicHomeScreen");
           Future.delayed(Duration.zero, () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
             );
           });
+          context.read<AuthBloc>().add(AppStarted());
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),
           );
+          context.read<AuthBloc>().add(AppStarted());
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

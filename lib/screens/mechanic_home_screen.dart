@@ -102,58 +102,66 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
         },
       ),
       body: _isCalendarView
-          ? const CalendarViewScreen(userType: UserType.mechanic)
-          : StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('bookings')
-            .where('mechanic', isEqualTo: user.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          ? _buildCalendarView()
+          : _buildListView(context, user),
+    );
+  }
 
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching bookings.'));
-          }
+  Widget _buildCalendarView() {
+    return const CalendarViewScreen(userType: UserType.mechanic);
+  }
 
-          final bookings = snapshot.data?.docs ?? [];
+  Widget _buildListView(BuildContext context, User user ) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('bookings')
+          .where('mechanic', isEqualTo: user.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (bookings.isEmpty) {
-            return const Center(child: Text('No bookings available.'));
-          }
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error fetching bookings.'));
+        }
 
-          return ListView.builder(
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final data = bookings[index].data() as Map<String, dynamic>;
-              final booking = Booking.fromMap(data);
+        final bookings = snapshot.data?.docs ?? [];
 
-              final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
-              final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
+        if (bookings.isEmpty) {
+          return const Center(child: Text('No bookings available.'));
+        }
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BookingDetailScreen(booking: booking),
-                    ),
-                  );
-                },
-                child: ListTile(
-                  title: Text('${booking.bookingTitle} - ${booking.customerName}'),
-                  subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
-                  leading: Icon(
-                    Icons.car_repair,
-                    color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
+        return ListView.builder(
+          itemCount: bookings.length,
+          itemBuilder: (context, index) {
+            final data = bookings[index].data() as Map<String, dynamic>;
+            final booking = Booking.fromMap(data);
+
+            final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
+            final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingDetailScreen(booking: booking),
                   ),
+                );
+              },
+              child: ListTile(
+                title: Text('${booking.bookingTitle} - ${booking.customerName}'),
+                subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
+                leading: Icon(
+                  Icons.car_repair,
+                  color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
                 ),
-              );
-            },
-          );
-        },
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

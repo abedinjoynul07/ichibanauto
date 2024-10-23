@@ -110,19 +110,23 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
           },
         ),
       ),
-      body: _showCalendarView ? _buildCalendarView() : _buildListView(context),
+      body: _showCalendarView
+          ? _buildCalendarView()
+          : _buildListView(context),
     );
   }
 
   Widget _buildCalendarView() {
-    return const CalendarViewScreen(userType: UserType.admin);
+    return const CalendarViewScreen(
+      userType: UserType.admin,
+    );
   }
 
   Widget _buildListView(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('bookings')
-          .orderBy('endDate', descending: false)
+          .orderBy('startDate', descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -138,7 +142,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             .toList() ?? [];
 
         if (bookings.isEmpty) {
-          return const Center(child: Text('No bookings available.'));
+          return const Center(child: Text('No bookings available for this day.'));
         }
 
         return AdminBookingList.adminBookingList(
