@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ichibanauto/widgets/admin_booking_item.dart';
-
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
 import '../models/booking.dart';
@@ -22,6 +21,7 @@ class AdminHomeScreen extends StatefulWidget {
 
 class AdminHomeScreenState extends State<AdminHomeScreen> {
   bool _showCalendarView = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +98,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                   title: const Text('Logout'),
                   onTap: () {
                     BlocProvider.of<AuthBloc>(context).add(LoggedOut());
+                    _auth.signOut();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const AuthScreen()),

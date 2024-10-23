@@ -11,7 +11,6 @@ import 'blocs/auth_state.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   runApp(const MyApp());
 }
 
@@ -42,15 +41,21 @@ class AuthHandler extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AdminAuthenticated) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
-          );
+          debugPrint("Navigating to AdminHomeScreen");
+          Future.delayed(Duration.zero, () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+            );
+          });
         } else if (state is MechanicAuthenticated) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
-          );
+          debugPrint("Navigating to MechanicHomeScreen");
+          Future.delayed(Duration.zero, () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
+            );
+          });
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),

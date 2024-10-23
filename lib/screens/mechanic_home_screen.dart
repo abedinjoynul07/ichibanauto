@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'booking_details_screen.dart';
-import 'calander_view_screen.dart';
 import '../blocs/auth_bloc.dart';
 import '../blocs/auth_event.dart';
+import 'booking_details_screen.dart';
+import 'calander_view_screen.dart';
 import '../models/booking.dart';
 import 'login_screen.dart';
 
@@ -19,6 +19,7 @@ class MechanicHomeScreen extends StatefulWidget {
 
 class MechanicHomeScreenState extends State<MechanicHomeScreen> {
   bool _isCalendarView = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +89,7 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
                   title: const Text('Logout'),
                   onTap: () {
                     BlocProvider.of<AuthBloc>(context).add(LoggedOut());
+                    _auth.signOut();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const AuthScreen()),

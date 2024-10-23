@@ -62,11 +62,16 @@ class AuthScreenState extends State<AuthScreen> {
                     }
                     return ElevatedButton(
                       onPressed: () {
+                        setState(() {
+                        });
                         final email = _emailController.text;
                         final password = _passwordController.text;
                         BlocProvider.of<AuthBloc>(context).add(
                           LoggedIn(email, password),
                         );
+
+                        setState(() {
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
