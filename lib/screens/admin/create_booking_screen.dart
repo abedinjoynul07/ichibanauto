@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../models/booking.dart';
+import '../../models/booking.dart';
 
 class CreateBookingScreen extends StatefulWidget {
   final Booking? booking;

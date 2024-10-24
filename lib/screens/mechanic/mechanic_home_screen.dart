@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/booking.dart';
-import 'booking_details_screen.dart';
-import 'calander_view_screen.dart';
-import 'login_screen.dart';
+import '../../models/booking.dart';
+import '../shared_widgets/booking_details_screen.dart';
+import '../shared_widgets/calander_view_screen.dart';
+import '../authentication/login/login_screen.dart';
 
 class MechanicHomeScreen extends StatefulWidget {
   const MechanicHomeScreen({super.key});

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ichibanauto/screens/common_home_page.dart';
-import 'package:ichibanauto/screens/login_screen.dart';
+import 'package:ichibanauto/screens/authentication/login/login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});

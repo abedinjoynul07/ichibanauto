@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/booking.dart';
+import '../../../models/booking.dart';
+
 
 class AdminBookingList {
   static Widget adminBookingList({
@@ -121,7 +122,7 @@ class AdminBookingList {
                       onTap: () => onEdit(booking.id ?? ''),
                       child: Icon(
                         Icons.edit,
-                        size: screenWidth * 0.06,
+                        size: screenWidth * 0.05,
                         color: Colors.green,
                       ),
                     ),
@@ -129,7 +130,7 @@ class AdminBookingList {
                       onTap: () => onDelete(booking.id ?? ''),
                       child: Icon(
                         Icons.delete,
-                        size: screenWidth * 0.06,
+                        size: screenWidth * 0.05,
                         color: Colors.red,
                       ),
                     ),

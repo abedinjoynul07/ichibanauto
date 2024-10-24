@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ichibanauto/screens/admin_home_screen.dart';
-import 'package:ichibanauto/screens/mechanic_home_screen.dart';
+import 'package:ichibanauto/screens/admin/admin_home_screen.dart';
+import 'package:ichibanauto/screens/mechanic/mechanic_home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ichibanauto/screens/registration_screen.dart';
+import 'package:ichibanauto/screens/authentication/registration/registration_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});

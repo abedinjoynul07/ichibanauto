@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/booking.dart';
+import '../../models/booking.dart';
 
 class BookingDetailScreen extends StatelessWidget {
   final Booking booking;
@@ -29,20 +29,26 @@ class BookingDetailScreen extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
             ),
             const SizedBox(height: 20),
+            const Divider(),
             _buildSectionTitle('CAR DETAILS'),
+            const Divider(),
             const SizedBox(height: 8),
             _buildDetailRow('Make', booking.make),
             _buildDetailRow('Model', booking.model),
             _buildDetailRow('Year', booking.year),
             _buildDetailRow('Registration Plate', booking.registrationPlate),
             const SizedBox(height: 20),
+            const Divider(),
             _buildSectionTitle('OWNER DETAILS'),
+            const Divider(),
             const SizedBox(height: 8),
             _buildDetailRow('Name', booking.customerName),
             _buildDetailRow('Phone', booking.customerPhone),
             _buildDetailRow('Email', booking.customerEmail),
             const SizedBox(height: 20),
+            const Divider(),
             _buildSectionTitle('CAR SERVICE STARTED'),
+            const Divider(),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +59,9 @@ class BookingDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+            const Divider(),
             _buildSectionTitle('CAR SERVICE DEADLINE'),
+            const Divider(),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,7 +72,9 @@ class BookingDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+            const Divider(),
             _buildSectionTitle('WHO IS WORKING'),
+            const Divider(),
             const SizedBox(height: 8),
             FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ichibanauto/widgets/booking_list_item.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../models/booking.dart';
-import '../widgets/admin_booking_item.dart';
+import '../../models/booking.dart';
+import '../admin/widgets/admin_booking_item.dart';
+import '../mechanic/widgets/booking_list_item.dart';
 import 'booking_details_screen.dart';
-import 'create_booking_screen.dart';
+import '../admin/create_booking_screen.dart';
 
 enum UserType { admin, mechanic }
 
@@ -195,7 +195,6 @@ class CalendarViewScreenState extends State<CalendarViewScreen> {
       },
     );
   }
-
 
   Future<void> _deleteBooking(String bookingId) async {
     try {

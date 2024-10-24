@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ichibanauto/screens/common_home_page.dart';
-import 'package:ichibanauto/screens/login_screen.dart';
+import 'package:ichibanauto/screens/authentication/login/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

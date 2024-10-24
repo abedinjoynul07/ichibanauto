@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ichibanauto/widgets/admin_booking_item.dart';
+import 'package:ichibanauto/screens/admin/widgets/admin_booking_item.dart';
 
-import '../models/booking.dart';
-import 'booking_details_screen.dart';
-import 'calander_view_screen.dart';
+import '../../models/booking.dart';
+import '../shared_widgets/booking_details_screen.dart';
+import '../shared_widgets/calander_view_screen.dart';
 import 'create_booking_screen.dart';
-import 'login_screen.dart';
+import '../authentication/login/login_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -20,6 +20,7 @@ class AdminHomeScreen extends StatefulWidget {
 class AdminHomeScreenState extends State<AdminHomeScreen> {
   bool _showCalendarView = true;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  DateTime? _selectedDay;
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +124,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildCalendarView() {
-    return const CalendarViewScreen(
-      userType: UserType.admin,
-    );
+    return const CalendarViewScreen(userType: UserType.admin);
   }
 
   Widget _buildListView(BuildContext context) {
@@ -144,20 +143,28 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
         }
 
         final List<Booking> bookings = snapshot.data?.docs
-                .map((doc) => Booking.fromMap(
-                    doc.data() as Map<String, dynamic>,
-                    id: doc.id))
-                .toList() ??
+            .map((doc) => Booking.fromMap(
+            doc.data() as Map<String, dynamic>,
+            id: doc.id))
+            .toList() ??
             [];
 
-        if (bookings.isEmpty) {
+        final filteredBookings = _selectedDay == null
+            ? bookings
+            : bookings.where((booking) {
+          return booking.startDate.year == _selectedDay!.year &&
+              booking.startDate.month == _selectedDay!.month &&
+              booking.startDate.day == _selectedDay!.day;
+        }).toList();
+
+        if (filteredBookings.isEmpty) {
           return const Center(
               child: Text('No bookings available for this day.'));
         }
 
         return AdminBookingList.adminBookingList(
           context: context,
-          bookings: bookings,
+          bookings: filteredBookings,
           onTap: (booking) {
             Navigator.push(
               context,
@@ -167,7 +174,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             );
           },
           onEdit: (bookingId) {
-            final booking = bookings.firstWhere((b) => b.id == bookingId);
+            final booking = filteredBookings.firstWhere((b) => b.id == bookingId);
             Navigator.push(
               context,
               MaterialPageRoute(
