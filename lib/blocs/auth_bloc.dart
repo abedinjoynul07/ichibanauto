@@ -11,28 +11,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   AuthBloc() : super(AuthInitial()) {
-    Future<void> fetchUserRoleAndRedirect(User user, Emitter<AuthState> emit, {bool showToast = false}) async {
-      debugPrint("Entered");
+    Future<void> fetchUserRole(User user, Emitter<AuthState> emit) async {
       try {
         final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
           final String role = userDoc['role'];
-          debugPrint("User role fetched: $role for user: ${user.uid}");
-
-          if (role == 'admin') {
-            debugPrint("Emitting Admin role");
-            emit(AdminAuthenticated(user.uid));
-            debugPrint("Admin exit");
-          } else if (role == 'mechanic') {
-            debugPrint("Emitting Mechanic role");
-            emit(MechanicAuthenticated(user.uid));
-            debugPrint("Mechanic exit");
-          }
+          emit(RoleFetched(user.uid, role)); // Emit state with role
         } else {
           emit(const AuthError('User role not found.'));
         }
       } catch (e) {
-        debugPrint("Error fetching user role: $e");
         emit(AuthError(e.toString()));
       }
     }
@@ -40,7 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AppStarted>((event, emit) async {
       final user = _auth.currentUser;
       if (user != null) {
-        await fetchUserRoleAndRedirect(user, emit);
+        await fetchUserRole(user, emit);
       } else {
         emit(Unauthenticated());
       }
@@ -53,15 +41,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-
-        debugPrint("Login successful for: ${userCredential.user?.uid}");
-
-        await userCredential.user!.getIdToken(true);
-
-        await fetchUserRoleAndRedirect(userCredential.user!, emit);
-
+        await fetchUserRole(userCredential.user!, emit);
       } catch (e) {
-        debugPrint("Login error: $e");
         emit(AuthError(e.toString()));
       }
     });
@@ -79,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           'role': event.role,
         });
 
-        await fetchUserRoleAndRedirect(result.user!, emit, showToast: true);
+        await fetchUserRole(result.user!, emit);
       } catch (e) {
         emit(AuthError(e.toString()));
       }
@@ -87,9 +68,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<LoggedOut>((event, emit) async {
       await _auth.signOut();
-      FirebaseAuth.instance.authStateChanges();
       emit(Unauthenticated());
     });
-
   }
 }

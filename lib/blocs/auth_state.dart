@@ -33,3 +33,13 @@ class AuthError extends AuthState {
   @override
   List<Object> get props => [error];
 }
+
+class RoleFetched extends AuthState {
+  final String userId;
+  final String role;
+
+  const RoleFetched(this.userId, this.role);
+
+  @override
+  List<Object> get props => [userId, role];
+}

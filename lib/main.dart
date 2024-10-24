@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ichibanauto/screens/admin_home_screen.dart';
+import 'package:ichibanauto/screens/common_home_page.dart';
 import 'package:ichibanauto/screens/login_screen.dart';
-import 'package:ichibanauto/screens/mechanic_home_screen.dart';
+
 import 'blocs/auth_bloc.dart';
 import 'blocs/auth_event.dart';
 import 'blocs/auth_state.dart';
@@ -40,27 +40,17 @@ class AuthHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AdminAuthenticated) {
+        if (state is RoleFetched) {
           Future.delayed(Duration.zero, () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+              MaterialPageRoute(builder: (context) => const CommonHomePage()),
             );
           });
-          context.read<AuthBloc>().add(AppStarted());
-        } else if (state is MechanicAuthenticated) {
-          Future.delayed(Duration.zero, () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const MechanicHomeScreen()),
-            );
-          });
-          context.read<AuthBloc>().add(AppStarted());
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),
           );
-          context.read<AuthBloc>().add(AppStarted());
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
