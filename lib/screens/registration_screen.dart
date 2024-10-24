@@ -1,23 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/auth_bloc.dart';
-import '../blocs/auth_event.dart';
-import '../blocs/auth_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ichibanauto/screens/common_home_page.dart';
+import 'package:ichibanauto/screens/login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
   @override
-  RegistrationScreenState createState() => RegistrationScreenState();
+  _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
-class RegistrationScreenState extends State<RegistrationScreen> {
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-
   String _selectedRole = 'mechanic';
   final List<String> _roles = ['mechanic', 'admin'];
+  bool _isLoading = false;
+
+  Future<void> _register() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showSnackBar('Password and Confirm Password must match.');
+      return;
+    }
+
+    if (_passwordController.text.length < 6) {
+      _showSnackBar('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': _emailController.text,
+        'role': _selectedRole,
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const CommonHomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          _showSnackBar('The email address is already registered.');
+          break;
+        case 'invalid-email':
+          _showSnackBar('The email address is invalid.');
+          break;
+        case 'weak-password':
+          _showSnackBar('The password is too weak. Please choose a stronger password.');
+          break;
+        case 'operation-not-allowed':
+          _showSnackBar('Email/password accounts are not enabled.');
+          break;
+        default:
+          _showSnackBar(e.message ?? 'Registration failed. Please try again later.');
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,124 +89,51 @@ class RegistrationScreenState extends State<RegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Center(
-                  child: Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 32.0,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.teal,
-                      letterSpacing: 1.5,
-                    ),
+                const Text(
+                  'Create Account',
+                  style: TextStyle(
+                    fontSize: 32.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 50.0),
-
-                _buildTextField(
-                  label: 'Email',
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  icon: Icons.email,
-                  isPassword: false,
-                ),
+                _buildTextField('Email', _emailController, false),
                 const SizedBox(height: 20.0),
-
-                _buildTextField(
-                  label: 'Password',
-                  controller: _passwordController,
-                  icon: Icons.lock,
-                  isPassword: true,
-                ),
+                _buildTextField('Password', _passwordController, true),
                 const SizedBox(height: 20.0),
-
-                _buildTextField(
-                  label: 'Confirm Password',
-                  controller: _confirmPasswordController,
-                  icon: Icons.lock_outline,
-                  isPassword: true,
-                ),
+                _buildTextField('Confirm Password', _confirmPasswordController, true),
                 const SizedBox(height: 20.0),
-
-                DropdownButtonFormField<String>(
-                  value: _selectedRole,
-                  items: _roles.map((role) {
-                    return DropdownMenuItem<String>(
-                      value: role,
-                      child: Text(role.toUpperCase()),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRole = value!;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Role',
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    prefixIcon: const Icon(Icons.person, color: Colors.teal),
-                    border: OutlineInputBorder(
+                _buildRoleDropdown(),
+                const SizedBox(height: 30.0),
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ElevatedButton(
+                  onPressed: _register,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                const SizedBox(height: 30.0),
-
-                BlocListener<AuthBloc, AuthState>(
-                  listener: (context, state) {
-                    if (state is AuthError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(state.error)));
-                    } else if (state is Authenticated) {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state is AuthLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      return ElevatedButton(
-                        onPressed: () {
-                          final email = _emailController.text;
-                          final password = _passwordController.text;
-                          final confirmPassword = _confirmPasswordController.text;
-
-                          if (password == confirmPassword) {
-                            BlocProvider.of<AuthBloc>(context).add(
-                              RegisterWithEmail(email, password, _selectedRole),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Passwords do not match')),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          backgroundColor: Colors.teal,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          'Register',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
                 const SizedBox(height: 20.0),
-
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AuthScreen()),
+                    );
                   },
                   child: const Text(
                     'Already have an account? Login',
@@ -167,23 +152,42 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required IconData icon,
-    required bool isPassword,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+  Widget _buildTextField(String label, TextEditingController controller, bool isPassword) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
-      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
         filled: true,
         fillColor: Colors.grey[100],
-        prefixIcon: Icon(icon, color: Colors.teal),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(isPassword ? Icons.lock : Icons.email, color: Colors.teal),
+      ),
+    );
+  }
+
+  Widget _buildRoleDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedRole,
+      items: _roles.map((role) {
+        return DropdownMenuItem<String>(
+          value: role,
+          child: Text(role.toUpperCase()),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedRole = value!;
+        });
+      },
+      decoration: InputDecoration(
+        labelText: 'Role',
+        filled: true,
+        fillColor: Colors.grey[100],
+        prefixIcon: const Icon(Icons.person, color: Colors.teal),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,

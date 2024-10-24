@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../blocs/auth_bloc.dart';
-import '../blocs/auth_event.dart';
+
+import '../models/booking.dart';
 import 'booking_details_screen.dart';
 import 'calander_view_screen.dart';
-import '../models/booking.dart';
 import 'login_screen.dart';
 
 class MechanicHomeScreen extends StatefulWidget {
@@ -40,7 +38,10 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
         ],
       ),
       drawer: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -72,7 +73,8 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
                       userRole.isNotEmpty
                           ? userRole.substring(0, 1).toUpperCase()
                           : 'M',
-                      style: const TextStyle(fontSize: 40.0, color: Colors.blueAccent),
+                      style: const TextStyle(
+                          fontSize: 40.0, color: Colors.blueAccent),
                     ),
                   ),
                 ),
@@ -88,14 +90,17 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
                   leading: const Icon(Icons.logout),
                   title: const Text('Logout'),
                   onTap: () {
-                    BlocProvider.of<AuthBloc>(context).add(LoggedOut());
                     _auth.signOut();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const AuthScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const AuthScreen()),
                     );
                   },
                 ),
+                const SizedBox(
+                  height: 20,
+                )
               ],
             ),
           );
@@ -111,7 +116,7 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
     return const CalendarViewScreen(userType: UserType.mechanic);
   }
 
-  Widget _buildListView(BuildContext context, User user ) {
+  Widget _buildListView(BuildContext context, User user) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('bookings')
@@ -138,8 +143,10 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
             final data = bookings[index].data() as Map<String, dynamic>;
             final booking = Booking.fromMap(data);
 
-            final String formattedStartDate = DateFormat.yMMMd().add_jm().format(booking.startDate);
-            final String formattedEndDate = DateFormat.yMMMd().add_jm().format(booking.endDate);
+            final String formattedStartDate =
+                DateFormat.yMMMd().add_jm().format(booking.startDate);
+            final String formattedEndDate =
+                DateFormat.yMMMd().add_jm().format(booking.endDate);
 
             return GestureDetector(
               onTap: () {
@@ -151,11 +158,15 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
                 );
               },
               child: ListTile(
-                title: Text('${booking.bookingTitle} - ${booking.customerName}'),
-                subtitle: Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
+                title:
+                    Text('${booking.bookingTitle} - ${booking.customerName}'),
+                subtitle:
+                    Text('Start: $formattedStartDate\nEnd: $formattedEndDate'),
                 leading: Icon(
                   Icons.car_repair,
-                  color: _isEndingSoon(booking.endDate) ? Colors.red : Colors.green,
+                  color: _isEndingSoon(booking.endDate)
+                      ? Colors.red
+                      : Colors.green,
                 ),
               ),
             );
@@ -167,6 +178,7 @@ class MechanicHomeScreenState extends State<MechanicHomeScreen> {
 
   bool _isEndingSoon(DateTime endDate) {
     final DateTime now = DateTime.now();
-    return endDate.isBefore(now.add(const Duration(hours: 1))) && endDate.isAfter(now);
+    return endDate.isBefore(now.add(const Duration(hours: 1))) &&
+        endDate.isAfter(now);
   }
 }
